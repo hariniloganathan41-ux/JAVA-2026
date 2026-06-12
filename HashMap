@@ -18,3 +18,32 @@ class Main {
 {1=Alice, 2=Bob, 3=Charlie}
 {1=Alia, 2=Bob, 3=Charlie}
 {2=Bob, 3=Charlie}
+
+
+
+import java.util.*;
+class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("admin@gmail.com", "admin@123");
+        hashMap.put("Jane@gmail.com", "jane@30");
+        hashMap.put("Jim@gmail.com", "jim@35");
+        System.out.print("Enter user id: ");
+        String user=sc.nextLine();
+        System.out.print("Enter password: ");
+        String pass=sc.nextLine();
+       
+
+        if (hashMap.containsKey(user) || hashMap.containsKey(pass)) {
+            System.out.println("Welcome to Home Screen");
+        } else {
+            System.out.println("Invalid userid or password");
+        }
+
+    }
+}
+
+Enter user id: harini@gmail.com
+Enter password: 123
+Invalid userid or password

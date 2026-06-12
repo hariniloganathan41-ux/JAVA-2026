@@ -1,0 +1,20 @@
+import java.util.*;
+class Main {
+    public static void main(String[] args) {
+        HashMap<Integer,String> a=new HashMap<>();
+        a.put(1,"Alice");
+        a.put(2,"Bob");
+        a.put(3,"Charlie");
+        System.out.println(a);
+        a.put(1,"Alia");
+        System.out.println(a);
+        a.remove(1);
+        System.out.println(a);
+
+        
+    }
+}
+
+{1=Alice, 2=Bob, 3=Charlie}
+{1=Alia, 2=Bob, 3=Charlie}
+{2=Bob, 3=Charlie}

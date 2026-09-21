@@ -1,0 +1,1170 @@
+
+Find X Value of Array I
+
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter n: ");
+        int n = sc.nextInt();
+        int[] nums = new int[n];
+        System.out.println("Enter array elements:");
+        for (int i = 0; i < n; i++) {
+            nums[i] = sc.nextInt();
+        }
+        System.out.print("Enter k: ");
+        int k = sc.nextInt();
+        long[] result = new long[k];
+        long[] dp = new long[k];
+        for (int num : nums) {
+            int mod = num % k;
+            long[] newDp = new long[k];
+            newDp[mod] = 1;
+            for (int r = 0; r < k; r++) {
+                int newRemainder = (r * mod) % k;
+                newDp[newRemainder] += dp[r];
+            }
+            for (int r = 0; r < k; r++) {
+                result[r] += newDp[r];
+            }
+            dp = newDp;
+        }
+        System.out.println("Output:");
+        System.out.println(Arrays.toString(result));
+
+        sc.close();
+    }
+}
+
+Enter n: 8
+Enter array elements:
+1 2 3 4 5 6 7 8
+Enter k: 3
+Output:
+[27, 3, 6]
+
+LeetCode 1401 – Circle and Rectangle Overlapping.
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter radius: ");
+        int radius = sc.nextInt();
+
+        System.out.print("Enter xCenter: ");
+        int xCenter = sc.nextInt();
+
+        System.out.print("Enter yCenter: ");
+        int yCenter = sc.nextInt();
+
+        System.out.print("Enter x1: ");
+        int x1 = sc.nextInt();
+
+        System.out.print("Enter y1: ");
+        int y1 = sc.nextInt();
+
+        System.out.print("Enter x2: ");
+        int x2 = sc.nextInt();
+
+        System.out.print("Enter y2: ");
+        int y2 = sc.nextInt();
+
+        int closestX = Math.max(x1, Math.min(xCenter, x2));
+        int closestY = Math.max(y1, Math.min(yCenter, y2));
+
+        int dx = closestX - xCenter;
+        int dy = closestY - yCenter;
+
+        boolean result = (dx * dx + dy * dy) <= (radius * radius);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+Enter radius: 52
+Enter xCenter: 55
+Enter yCenter: 25
+Enter x1: 5
+Enter y1: 5
+Enter x2: 55
+Enter y2: 545
+Output: true
+
+LeetCode 3483 – Unique 3-Digit Even Numbers.
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of digits: ");
+        int n = sc.nextInt();
+
+        int[] digits = new int[n];
+
+        System.out.println("Enter the digits:");
+        for (int i = 0; i < n; i++) {
+            digits[i] = sc.nextInt();
+        }
+
+        boolean[] used = new boolean[1000];
+        int count = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            if (digits[i] == 0)
+                continue;
+            for (int j = 0; j < n; j++) {
+
+                if (j == i)
+                    continue;
+                for (int k = 0; k < n; k++) {
+
+                    if (k == i || k == j)
+                        continue;
+
+                    if (digits[k] % 2 != 0)
+                        continue;
+
+                    int number = digits[i] * 100
+                               + digits[j] * 10
+                               + digits[k];
+
+                    if (!used[number]) {
+                        used[number] = true;
+                        count++;
+                    }
+                }
+            }
+        }
+
+        System.out.println("Output: " + count);
+
+        sc.close();
+    }
+}
+
+Enter number of digits: 5
+Enter the digits:
+1
+2
+
+3
+4
+2
+Output: 19
+
+
+LeetCode 3414 – Maximum Score of Non-overlapping Intervals.
+
+import java.util.*;
+
+public class Main {
+
+    static class Interval {
+        int start, end, weight, index;
+        Interval(int start, int end, int weight, int index) {
+            this.start = start;
+            this.end = end;
+            this.weight = weight;
+            this.index = index;
+        }
+    }
+
+    static class State {
+        long score;
+        int[] indices;
+        State(long score, int[] indices) {
+            this.score = score;
+            this.indices = indices;
+        }
+    }
+
+    static int n;
+    static Interval[] arr;
+    static int[] next;
+    static State[][] dp;
+
+    static boolean isSmaller(int[] a, int[] b) {
+        if (b == null) return true;
+        int len = Math.min(a.length, b.length);
+        for (int i = 0; i < len; i++) {
+            if (a[i] != b[i]) return a[i] < b[i];
+        }
+        return a.length < b.length;
+    }
+
+    static int[] addIndex(int idx, int[] arr) {
+        int[] res = new int[arr.length + 1];
+        res[0] = idx;
+        System.arraycopy(arr, 0, res, 1, arr.length);
+        return res;
+    }
+    static State solve(int i, int count) {
+        if (i >= n || count == 4) {
+            return new State(0, new int[0]);
+        }
+        if (dp[i][count] != null) {
+            return dp[i][count];
+        }
+
+        State skip = solve(i + 1, count);
+
+        State nextState = solve(next[i], count + 1);
+        int[] takenIndices = addIndex(arr[i].index, nextState.indices);
+        State take = new State(arr[i].weight + nextState.score, takenIndices);
+
+        State best;
+        if (take.score > skip.score) {
+            best = take;
+        } else if (take.score < skip.score) {
+            best = skip;
+        } else {
+            best = isSmaller(take.indices, skip.indices) ? take : skip;
+        }
+
+        return dp[i][count] = best;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        try {
+            System.out.print("Enter number of intervals: ");
+            n = sc.nextInt();
+            if (n <= 0) {
+                System.out.println("No intervals to process.");
+                return;
+            }
+
+            arr = new Interval[n];
+            for (int i = 0; i < n; i++) {
+                System.out.print("Enter start, end, weight for interval " + (i + 1) + ": ");
+                int s = sc.nextInt();
+                int e = sc.nextInt();
+                int w = sc.nextInt();
+                arr[i] = new Interval(s, e, w, i + 1); // store 1-based index
+            }
+
+            Arrays.sort(arr, Comparator.comparingInt(a -> a.start));
+
+            next = new int[n];
+            for (int i = 0; i < n; i++) {
+                int lo = i + 1, hi = n;
+                while (lo < hi) {
+                    int mid = (lo + hi) / 2;
+                    if (arr[mid].start > arr[i].end) {
+                        hi = mid;
+                    } else {
+                        lo = mid + 1;
+                    }
+                }
+                next[i] = lo;
+            }
+
+            dp = new State[n][5];
+
+            State ans = solve(0, 0);
+
+            System.out.println("Max weight: " + ans.score);
+            System.out.print("Chosen intervals (indices): ");
+            for (int idx : ans.indices) {
+                System.out.print(idx + " ");
+            }
+            System.out.println();
+
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter integers only.");
+        } finally {
+            sc.close();
+        }
+    }
+}
+
+Enter number of intervals: 5
+Enter start, end, weight for interval 1: 3323
+11
+25
+Enter start, end, weight for interval 2:
+21
+12
+62
+Enter start, end, weight for interval 3: 22
+25
+25
+Enter start, end, weight for interval 4: 25
+9
+
+56
+Enter start, end, weight for interval 5: 65
+5
+655
+Max weight: 798
+Chosen intervals (indices): 2 4 5 1
+
+
+
+LeetCode 836 – Rectangle Overlap.
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int[] rec1 = new int[4];
+        int[] rec2 = new int[4];
+
+        System.out.println("Enter rec1 (x1 y1 x2 y2):");
+        for (int i = 0; i < 4; i++) {
+            rec1[i] = sc.nextInt();
+        }
+
+        System.out.println("Enter rec2 (x1 y1 x2 y2):");
+        for (int i = 0; i < 4; i++) {
+            rec2[i] = sc.nextInt();
+        }
+
+        boolean result =
+                rec1[0] < rec2[2] &&
+                rec2[0] < rec1[2] &&
+                rec1[1] < rec2[3] &&
+                rec2[1] < rec1[3];
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+Enter rec1 (x1 y1 x2 y2):
+13 12 31 26
+Enter rec2 (x1 y1 x2 y2):
+12 52 45 12
+Output: false
+
+LeetCode 1477 – Find Two Non-overlapping Sub-arrays Each With Target Sum.
+
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter array size: ");
+        int n = sc.nextInt();
+
+        int[] arr = new int[n];
+
+        System.out.println("Enter array elements:");
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter target: ");
+        int target = sc.nextInt();
+
+        int result = minSumOfLengths(arr, target);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+
+    public static int minSumOfLengths(int[] arr, int target) {
+
+        int n = arr.length;
+        int[] best = new int[n];
+
+        Arrays.fill(best, Integer.MAX_VALUE);
+
+        int left = 0;
+        int sum = 0;
+        int minLength = Integer.MAX_VALUE;
+        int answer = Integer.MAX_VALUE;
+
+        for (int right = 0; right < n; right++) {
+
+            sum += arr[right];
+
+            while (sum > target && left <= right) {
+                sum -= arr[left];
+                left++;
+            }
+
+            if (sum == target) {
+
+                int length = right - left + 1;
+
+                // Check if a previous subarray exists
+                if (left > 0 && best[left - 1] != Integer.MAX_VALUE) {
+                    answer = Math.min(answer,
+                            length + best[left - 1]);
+                }
+
+                minLength = Math.min(minLength, length);
+            }
+
+            best[right] = minLength;
+        }
+
+        return answer == Integer.MAX_VALUE ? -1 : answer;
+    }
+}
+
+Enter array size: 5
+Enter array elements:
+1 1 2 3 4
+Enter target: 1
+Output: 2
+
+LeetCode 940 – Distinct Subsequences II.
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter string: ");
+        String s = sc.nextLine();
+
+        int result = distinctSubseqII(s);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+
+    public static int distinctSubseqII(String s) {
+
+        long MOD = 1000000007;
+
+        long[] dp = new long[26];
+
+        for (char c : s.toCharArray()) {
+
+            int index = c - 'a';
+
+            long total = 1;
+
+            for (int i = 0; i < 26; i++) {
+                total = (total + dp[i]) % MOD;
+            }
+
+            dp[index] = total;
+        }
+
+        long answer = 0;
+
+        for (int i = 0; i < 26; i++) {
+            answer = (answer + dp[i]) % MOD;
+        }
+
+        return (int) answer;
+    }
+}
+
+
+Enter string: hdhd
+Output: 11
+
+
+
+LeetCode 2265 – Count Nodes Equal to Average of Subtree.
+
+import java.util.*;
+
+public class Main {
+
+    static class TreeNode {
+        int val;
+        TreeNode left, right;
+
+        TreeNode(int val) {
+            this.val = val;
+        }
+    }
+
+    static int count = 0;
+
+    public static int[] dfs(TreeNode root) {
+        if (root == null) {
+            return new int[]{0, 0}; // sum, number of nodes
+        }
+
+        int[] left = dfs(root.left);
+        int[] right = dfs(root.right);
+
+        int sum = root.val + left[0] + right[0];
+        int nodes = 1 + left[1] + right[1];
+
+        // Average = sum / nodes
+        if (root.val == sum / nodes) {
+            count++;
+        }
+
+        return new int[]{sum, nodes};
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of nodes: ");
+        int n = sc.nextInt();
+
+        if (n == 0) {
+            System.out.println("Output: 0");
+            return;
+        }
+
+        System.out.println("Enter tree elements in level order:");
+        System.out.println("Use -1 for NULL nodes.");
+
+        int[] arr = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+
+        // Create root
+        TreeNode root = new TreeNode(arr[0]);
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+
+        int i = 1;
+
+        while (!queue.isEmpty() && i < n) {
+
+            TreeNode current = queue.poll();
+
+            // Left child
+            if (arr[i] != -1) {
+                current.left = new TreeNode(arr[i]);
+                queue.add(current.left);
+            }
+            i++;
+
+            // Right child
+            if (i < n && arr[i] != -1) {
+                current.right = new TreeNode(arr[i]);
+                queue.add(current.right);
+            }
+            i++;
+        }
+
+        dfs(root);
+
+        System.out.println("Output: " + count);
+
+        sc.close();
+    }
+}
+
+
+Enter number of nodes: 7
+Enter tree elements in level order:
+Use -1 for NULL nodes.
+14 2 5 5 36 89 56 26 
+Output: 4
+
+
+LeetCode 3464 – Maximize the Distance Between Points on a Square.
+
+import java.util.*;
+
+public class Main {
+
+    static class Solution {
+
+        public int maxDistance(int side, int[][] points, int k) {
+
+            int n = points.length;
+            long perimeter = 4L * side;
+
+            long[] arr = new long[n];
+            for (int i = 0; i < n; i++) {
+
+                int x = points[i][0];
+                int y = points[i][1];
+
+                if (x == 0) {
+                    arr[i] = y;
+                }
+                else if (y == side) {
+                    arr[i] = side + (long) x;
+                }
+                else if (x == side) {
+                    arr[i] = 3L * side - y;
+                }
+                else {
+                    arr[i] = 4L * side - x;
+                }
+            }
+
+            Arrays.sort(arr);
+
+            long[] extended = new long[2 * n];
+
+            for (int i = 0; i < n; i++) {
+                extended[i] = arr[i];
+                extended[i + n] = arr[i] + perimeter;
+            }
+
+            int low = 0;
+            int high = side;
+
+            while (low < high) {
+
+                int mid = low + (high - low + 1) / 2;
+
+                if (canSelect(extended, n, k, mid, perimeter)) {
+                    low = mid;
+                } else {
+                    high = mid - 1;
+                }
+            }
+
+            return low;
+        }
+
+        private boolean canSelect(
+                long[] arr,
+                int n,
+                int k,
+                long dist,
+                long perimeter) {
+
+            int total = 2 * n;
+
+            int[] next = new int[total];
+
+            int j = 0;
+
+            for (int i = 0; i < total; i++) {
+
+                if (j < i + 1) {
+                    j = i + 1;
+                }
+
+                while (j < total && arr[j] - arr[i] < dist) {
+                    j++;
+                }
+
+                next[i] = j;
+            }
+
+            for (int start = 0; start < n; start++) {
+
+                int current = start;
+
+                for (int count = 1; count < k; count++) {
+
+                    current = next[current];
+
+                    if (current >= start + n) {
+                        break;
+                    }
+                }
+
+                if (current < start + n) {
+
+                    long gap = arr[current] - arr[start];
+
+                    if (gap <= perimeter - dist) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter side: ");
+        int side = sc.nextInt();
+
+        System.out.print("Enter number of points: ");
+        int n = sc.nextInt();
+
+        int[][] points = new int[n][2];
+
+        System.out.println("Enter points (x y):");
+
+        for (int i = 0; i < n; i++) {
+            points[i][0] = sc.nextInt();
+            points[i][1] = sc.nextInt();
+        }
+
+        System.out.print("Enter k: ");
+        int k = sc.nextInt();
+
+        Solution sol = new Solution();
+
+        int answer = sol.maxDistance(side, points, k);
+
+        System.out.println("Maximum minimum Manhattan distance = " + answer);
+
+        sc.close();
+    }
+}
+
+
+Enter side: 5
+Enter number of points: 5
+Enter points (x y):
+1 2
+1 5
+1 8
+1 9
+1 3
+Enter k: 3
+Maximum minimum Manhattan distance = 0
+
+LeetCode 796 – Rotate String
+
+
+import java.util.Scanner;
+
+public class Main {
+
+    public static boolean rotateString(String s, String goal) {
+
+        if (s.length() != goal.length()) {
+            return false;
+        }
+
+        String doubled = s + s;
+
+        return doubled.contains(goal);
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter s: ");
+        String s = sc.nextLine();
+
+        System.out.print("Enter goal: ");
+        String goal = sc.nextLine();
+
+        boolean result = rotateString(s, goal);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+Enter s: hfgkrhhj
+Enter goal: kgjh
+Output: false
+
+
+LeetCode 788 – Rotated Digits
+
+
+import java.util.Scanner;
+
+public class Main {
+
+    public static int rotatedDigits(int n) {
+
+        int count = 0;
+
+        for (int i = 1; i <= n; i++) {
+
+            int num = i;
+            boolean valid = true;
+            boolean different = false;
+
+            while (num > 0) {
+
+                int digit = num % 10;
+
+                if (digit == 2 || digit == 5 ||
+                    digit == 6 || digit == 9) {
+
+                    different = true;
+
+                } 
+                else if (digit == 0 || digit == 1 || digit == 8) {
+
+                    // These digits remain the same
+
+                } 
+                else {
+                    valid = false;
+                    break;
+                }
+
+                num = num / 10;
+            }
+
+            if (valid && different) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter n: ");
+        int n = sc.nextInt();
+
+        int result = rotatedDigits(n);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+Enter n: 5
+Output: 2
+
+
+LeetCode 3742 – Maximum Path Score in a Grid
+
+import java.util.*;
+
+public class Main {
+
+    public static int maxPathScore(int[][] grid, int k) {
+
+        int m = grid.length;
+        int n = grid[0].length;
+
+        int[][][] dp = new int[m][n][k + 1];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                Arrays.fill(dp[i][j], -1);
+            }
+        }
+
+        int startCost = (grid[0][0] == 0) ? 0 : 1;
+
+        if (startCost <= k) {
+            dp[0][0][startCost] = grid[0][0];
+        }
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                for (int cost = 0; cost <= k; cost++) {
+
+                    if (dp[i][j][cost] == -1) {
+                        continue;
+                    }
+
+                    if (i + 1 < m) {
+
+                        int newCost = cost +
+                                (grid[i + 1][j] == 0 ? 0 : 1);
+
+                        if (newCost <= k) {
+
+                            dp[i + 1][j][newCost] =
+                                    Math.max(
+                                        dp[i + 1][j][newCost],
+                                        dp[i][j][cost] + grid[i + 1][j]
+                                    );
+                        }
+                    }
+
+                    if (j + 1 < n) {
+
+                        int newCost = cost +
+                                (grid[i][j + 1] == 0 ? 0 : 1);
+
+                        if (newCost <= k) {
+
+                            dp[i][j + 1][newCost] =
+                                    Math.max(
+                                        dp[i][j + 1][newCost],
+                                        dp[i][j][cost] + grid[i][j + 1]
+                                    );
+                        }
+                    }
+                }
+            }
+        }
+
+        int answer = -1;
+
+        for (int cost = 0; cost <= k; cost++) {
+            answer = Math.max(
+                answer,
+                dp[m - 1][n - 1][cost]
+            );
+        }
+
+        return answer;
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of rows: ");
+        int m = sc.nextInt();
+
+        System.out.print("Enter number of columns: ");
+        int n = sc.nextInt();
+
+        int[][] grid = new int[m][n];
+
+        System.out.println("Enter grid values (0, 1, or 2):");
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                grid[i][j] = sc.nextInt();
+            }
+        }
+
+        System.out.print("Enter k: ");
+        int k = sc.nextInt();
+
+        int result = maxPathScore(grid, k);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+
+Enter number of rows: 2
+Enter number of columns: 2
+Enter grid values (0, 1, or 2):
+0
+1
+2
+0
+Enter k: 2
+Output: 2
+
+LeetCode 3225 – Maximum Score From Grid Operations
+
+
+import java.util.*;
+
+public class Main {
+
+    public static long maximumScore(int[][] grid) {
+
+        int n = grid.length;
+
+        long[][] dp = new long[2][2];
+
+        for (int i = 0; i < 2; i++) {
+            Arrays.fill(dp[i], Long.MIN_VALUE / 4);
+        }
+
+        dp[0][0] = 0;
+        dp[0][1] = 0;
+
+        for (int col = 1; col < n; col++) {
+
+            long[][] next = new long[2][2];
+
+            for (int i = 0; i < 2; i++) {
+                Arrays.fill(next[i], Long.MIN_VALUE / 4);
+            }
+
+            for (int prev = 0; prev <= 1; prev++) {
+                for (int curr = 0; curr <= 1; curr++) {
+
+                    if (dp[prev][curr] == Long.MIN_VALUE / 4) {
+                        continue;
+                    }
+
+                    for (int nxt = 0; nxt <= 1; nxt++) {
+
+                        long score = dp[prev][curr];
+
+                        
+                        if (curr == 0 && (prev == 1 || nxt == 1)) {
+
+                            for (int row = 0; row < n; row++) {
+                                score += grid[row][col];
+                            }
+                        }
+
+                        next[curr][nxt] =
+                                Math.max(next[curr][nxt], score);
+                    }
+                }
+            }
+
+            dp = next;
+        }
+
+        long answer = 0;
+
+        for (int prev = 0; prev <= 1; prev++) {
+            for (int curr = 0; curr <= 1; curr++) {
+
+                long score = dp[prev][curr];
+
+                if (score == Long.MIN_VALUE / 4) {
+                    continue;
+                }
+
+                if (curr == 0 && prev == 1) {
+
+                    for (int row = 0; row < n; row++) {
+                        score += grid[row][n - 1];
+                    }
+                }
+
+                answer = Math.max(answer, score);
+            }
+        }
+
+        return answer;
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter n: ");
+        int n = sc.nextInt();
+
+        int[][] grid = new int[n][n];
+
+        System.out.println("Enter grid values:");
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                grid[i][j] = sc.nextInt();
+            }
+        }
+
+        long result = maximumScore(grid);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+
+Enter n: 5
+Enter grid values:
+0 0 0 0 0
+0 0 3 0 0
+0 1 0 0 0
+5 0 0 3 0
+0 0 0 0 2
+Output: 8
+
+LeetCode 2033 – Minimum Operations to Make a Uni-Value Grid.
+
+import java.util.*;
+
+public class Main {
+
+    public static int minOperations(int[][] grid, int x) {
+
+        int m = grid.length;
+        int n = grid[0].length;
+
+        int[] arr = new int[m * n];
+
+        // Convert 2D grid to 1D array
+        int index = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                arr[index++] = grid[i][j];
+            }
+        }
+
+        // Check if all values have the same remainder
+        int remainder = arr[0] % x;
+
+        for (int value : arr) {
+            if (value % x != remainder) {
+                return -1;
+            }
+        }
+
+        // Sort the array
+        Arrays.sort(arr);
+
+        // Median gives minimum total operations
+        int median = arr[arr.length / 2];
+
+        int operations = 0;
+
+        for (int value : arr) {
+            operations += Math.abs(value - median) / x;
+        }
+
+        return operations;
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of rows: ");
+        int m = sc.nextInt();
+
+        System.out.print("Enter number of columns: ");
+        int n = sc.nextInt();
+
+        int[][] grid = new int[m][n];
+
+        System.out.println("Enter grid values:");
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                grid[i][j] = sc.nextInt();
+            }
+        }
+
+        System.out.print("Enter x: ");
+        int x = sc.nextInt();
+
+        int result = minOperations(grid, x);
+
+        System.out.println("Output: " + result);
+
+        sc.close();
+    }
+}
+
+Enter number of rows: 3
+Enter number of columns: 3
+Enter grid values:
+2 2 2
+2 5 4
+8 9 7
+Enter x: 5
+Output: -1
